@@ -1,0 +1,210 @@
+{
+    "arm": "shared",
+    "num_seqs": 8,
+    "suffix_len": 64,
+    "status": "ok",
+    "rounds": [
+        {
+            "round": 1,
+            "label": "冷启动",
+            "cached_tokens_per_seq": [
+                0,
+                1024,
+                1024,
+                1024,
+                1024,
+                1024,
+                1024,
+                1024
+            ],
+            "cached_tokens_total": 7168,
+            "computed_prefill_tokens": 1536,
+            "engine_prefill_tokens": 8704,
+            "saved_prefill_tokens": 7168,
+            "prefill_steps": 1,
+            "decode_steps": 7,
+            "prefill_time_s": 0.08424436400309787,
+            "elapsed_s": 0.2432991379973828,
+            "ttft_ms_p50": 84.24568400005228,
+            "ttft_ms_p90": 84.24568400005228,
+            "events": {
+                "KV_BLOCK_ALLOCATE": 12,
+                "KV_BLOCK_REUSE": 28,
+                "KV_BLOCK_REACTIVATE": 0
+            }
+        },
+        {
+            "round": 2,
+            "label": "重复提交",
+            "cached_tokens_per_seq": [
+                1024,
+                1024,
+                1024,
+                1024,
+                1024,
+                1024,
+                1024,
+                1024
+            ],
+            "cached_tokens_total": 8192,
+            "computed_prefill_tokens": 512,
+            "engine_prefill_tokens": 8704,
+            "saved_prefill_tokens": 8192,
+            "prefill_steps": 1,
+            "decode_steps": 7,
+            "prefill_time_s": 0.032335043000784935,
+            "elapsed_s": 0.19072992500150576,
+            "ttft_ms_p50": 32.33614299824694,
+            "ttft_ms_p90": 32.33614299824694,
+            "events": {
+                "KV_BLOCK_ALLOCATE": 8,
+                "KV_BLOCK_REUSE": 28,
+                "KV_BLOCK_REACTIVATE": 4
+            }
+        }
+    ],
+    "num_kvcache_blocks": 300,
+    "kvcache_block_size": 256,
+    "prefix_len": 1024,
+    "prompt_len": 1088
+}
+{
+    "arm": "short",
+    "num_seqs": 8,
+    "suffix_len": 64,
+    "status": "ok",
+    "rounds": [
+        {
+            "round": 1,
+            "label": "冷启动",
+            "cached_tokens_per_seq": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "cached_tokens_total": 0,
+            "computed_prefill_tokens": 1536,
+            "engine_prefill_tokens": 1536,
+            "saved_prefill_tokens": 0,
+            "prefill_steps": 1,
+            "decode_steps": 7,
+            "prefill_time_s": 0.06784437099850038,
+            "elapsed_s": 0.22046477800176945,
+            "ttft_ms_p50": 67.84527100171545,
+            "ttft_ms_p90": 67.84527100171545,
+            "events": {
+                "KV_BLOCK_ALLOCATE": 8,
+                "KV_BLOCK_REUSE": 0,
+                "KV_BLOCK_REACTIVATE": 0
+            }
+        },
+        {
+            "round": 2,
+            "label": "重复提交",
+            "cached_tokens_per_seq": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "cached_tokens_total": 0,
+            "computed_prefill_tokens": 1536,
+            "engine_prefill_tokens": 1536,
+            "saved_prefill_tokens": 0,
+            "prefill_steps": 1,
+            "decode_steps": 7,
+            "prefill_time_s": 0.06747870799881639,
+            "elapsed_s": 0.21949949899862986,
+            "ttft_ms_p50": 67.47953800004325,
+            "ttft_ms_p90": 67.47953800004325,
+            "events": {
+                "KV_BLOCK_ALLOCATE": 8,
+                "KV_BLOCK_REUSE": 0,
+                "KV_BLOCK_REACTIVATE": 0
+            }
+        }
+    ],
+    "num_kvcache_blocks": 300,
+    "kvcache_block_size": 256,
+    "prefix_len": 128,
+    "prompt_len": 192
+}
+{
+    "arm": "random",
+    "num_seqs": 8,
+    "suffix_len": 64,
+    "status": "ok",
+    "rounds": [
+        {
+            "round": 1,
+            "label": "冷启动",
+            "cached_tokens_per_seq": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "cached_tokens_total": 0,
+            "computed_prefill_tokens": 8704,
+            "engine_prefill_tokens": 8704,
+            "saved_prefill_tokens": 0,
+            "prefill_steps": 1,
+            "decode_steps": 7,
+            "prefill_time_s": 0.40151665300072636,
+            "elapsed_s": 0.5559229880018393,
+            "ttft_ms_p50": 401.5177430010226,
+            "ttft_ms_p90": 401.5177430010226,
+            "events": {
+                "KV_BLOCK_ALLOCATE": 40,
+                "KV_BLOCK_REUSE": 0,
+                "KV_BLOCK_REACTIVATE": 0
+            }
+        },
+        {
+            "round": 2,
+            "label": "重复提交",
+            "cached_tokens_per_seq": [
+                1024,
+                1024,
+                1024,
+                1024,
+                1024,
+                1024,
+                1024,
+                1024
+            ],
+            "cached_tokens_total": 8192,
+            "computed_prefill_tokens": 512,
+            "engine_prefill_tokens": 8704,
+            "saved_prefill_tokens": 8192,
+            "prefill_steps": 1,
+            "decode_steps": 7,
+            "prefill_time_s": 0.03489677399920765,
+            "elapsed_s": 0.19279354299942497,
+            "ttft_ms_p50": 34.898043999419315,
+            "ttft_ms_p90": 34.898043999419315,
+            "events": {
+                "KV_BLOCK_ALLOCATE": 8,
+                "KV_BLOCK_REUSE": 0,
+                "KV_BLOCK_REACTIVATE": 32
+            }
+        }
+    ],
+    "num_kvcache_blocks": 300,
+    "kvcache_block_size": 256,
+    "prefix_len": 1024,
+    "prompt_len": 1088
+}

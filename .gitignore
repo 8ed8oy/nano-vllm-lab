@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.egg-info/
+.env
+models/
+~/huggingface/
+*.safetensors
+*.bin
+*.log
+results/rerun-*
+!results/04_s4_prefix_cache.jsonl
