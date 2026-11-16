@@ -54,10 +54,10 @@ bash /path/to/nano-vllm-lab/scripts/repro.sh
 
 | 文件 | 现象 | 一句话结论 | 本仓代码状态 |
 |---|---|---|---|
-| [bug1](bugs/bug1_block_size_dual_source.md) | `--kvcache-block-size 512` 能过参数校验，写 KV 时断言失败 | `Sequence.block_size` 硬编码 256，与 `ModelRunner` 用的 `config.kvcache_block_size` 双源 | **仍可复现** |
-| [bug2](bugs/bug2_can_append_may_append.md) | KV 块紧张 + 并发超容量时 decode 必现 `IndexError` | `can_append`（`% block == 0`）与 `may_append`（`== 1`）谓词不一致，长度 `k*block+1` 时误判不需要新块 | 已修复，保留定位记录 |
+| [bug1](bugs/bug1_block_size_dual_source.md) | `--kvcache-block-size 512` 能过参数校验，写 KV 时断言失败 | `Sequence.block_size` 硬编码 256，与 `ModelRunner` 用的 `config.kvcache_block_size` 双源 | 已修复（`llm_engine.py:82` 注入），残留类级全局状态 |
+| [bug2](bugs/bug2_can_append_may_append.md) | KV 块紧张 + 并发超容量时 decode 必现 `IndexError` | `can_append`（`% block == 0`）与 `may_append`（`== 1`）谓词不一致，长度 `k*block+1` 时误判不需要新块 | 已修复 |
 
-两处都出在教学仓旧版本，不是我的引擎实现；bug2 的修复版在 `can_append` 里用注释写清了两处谓词必须同源。
+两处都出在教学仓旧版本，不是我的引擎实现。修复方式：bug1 在 `LLMEngine.__init__` 里用 config 覆盖 `Sequence.block_size`（早于任何 `Sequence` 构造）；bug2 把 `can_append` 的判据对齐 `may_append` 的 `== 1`。
 
 ## 边界
 

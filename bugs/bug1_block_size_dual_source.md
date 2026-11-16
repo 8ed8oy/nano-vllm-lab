@@ -1,39 +1,55 @@
 # bug1：block 粒度双源 → `store_kvcache` 断言失败
 
-**状态：本仓代码仍可复现（2026-10 观察；此后机器驱动异常，未重测）**
+**状态：本仓代码为修复后版本（`llm_engine.py:82` 把 config 的块粒度注入 `Sequence`）**
 
-## 现象
+## 现象（旧版）
 
 `--kvcache-block-size 512` 能通过 `Config.__post_init__` 的参数校验，但写 KV 时
-在 `ModelRunner.store_kvcache` 的断言处失败。
+在 `ModelRunner.store_kvcache` 的断言处失败（`slot_mapping.numel() != N`）。
 
-## 定位
+## 根因
 
-两个「每块多少 token」的来源同时存在：
+同一个「每块多少 token」存在两个来源：
 
 | 位置 | 取值 |
 |---|---|
-| `nanovllm/engine/sequence.py:34` | `block_size = 256` 类属性硬编码 |
+| `nanovllm/engine/sequence.py:34` | `block_size = 256`，类属性硬编码 |
 | `nanovllm/engine/model_runner.py:72` | `self.block_size = config.kvcache_block_size` |
 | `nanovllm/config.py:124` | 只 `assert kvcache_block_size % 256 == 0`，512 合法 |
 
-于是 `Sequence.num_blocks`（用 256）与 `slot_mapping`（用 512）对同一 token 算出不同的物理位置：
-前者把 1088 token 摊成 5 个 block，后者按 512 步长写，`block_table` 长度和实际需要的 block 数对不上。
+`Sequence` 用 256 算 `num_blocks` / `block(i)`，`ModelRunner` 用 512 展开 `slot_mapping`，
+同一 token 落到两个不同的物理位置；块表长度与实际需要的块数对不上，写 KV 时断言炸掉。
 
-## 最小复现
+## 修复
+
+`LLMEngine.__init__` 里、任何 `Sequence` 被构造之前，用 config 覆盖类属性：
+
+```python
+Sequence.block_size = config.kvcache_block_size   # nanovllm/engine/llm_engine.py:82
+```
+
+代码里的注释写明了理由：`Sequence` 的 `num_blocks` / `last_block_num_tokens` / `block()`
+必须与 `ModelRunner` 的 `config.block_size` 完全一致，否则 `slot_mapping` 的数量和 token 数对不上。
+
+## 这个修复的残留问题（可改进，不是 bug）
+
+1. **类级全局状态**：`Sequence.block_size` 是类属性，同一进程里若先后建两个不同 `kvcache_block_size`
+   的 engine，后者会改掉前者的粒度。
+2. **校验不表达语义**：`assert kvcache_block_size % 256 == 0` 只说明「必须是 256 的倍数」，
+   读代码的人看不出这条校验与 `Sequence` 有关联；它拦不住「config 与 Sequence 不相等」这件事。
+
+加固方向（若要提交上游）：把 `block_size` 变成 `Sequence` 的实例字段，由 engine 显式传入，
+删掉类级默认值；`Config` 侧把注释改成「与 Sequence 的块粒度同源」。
+
+## 最小复现（回退修复）
+
+删掉 `llm_engine.py:82` 那一行（或把 `Sequence.block_size` 固定回 256），再跑：
 
 ```bash
 python experiments/29_prefix_cache_ablation.py --arm shared --kvcache-block-size 512
 ```
 
-`--kvcache-block-size` 由 `main()` 透传给 `LLM(...)`，不碰 `Sequence.block_size`。
-
-## 结论
-
-单一真相源缺失。`Sequence` 是数据类，把 `block_size` 当常量写死，而运行时配置另存一份；
-参数校验只覆盖了「形态」（`% 256 == 0`），没覆盖「语义一致」。
-
 ## 教训
 
-参数校验通过 ≠ 配置生效。凡是「两处各存一份同一个量」的地方，
-要么让它只能有一处，要么在构造时断言两处相等——不要靠注释写「与 Config 一致」。
+参数校验通过 ≠ 配置生效。凡是「两处各存一份同一个量」的地方，要么让它只能有一处，
+要么在构造时断言两处相等——不要靠注释写「与 Config 一致」。
