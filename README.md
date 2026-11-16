@@ -19,6 +19,8 @@
 | random | 1024，各条不同 | r1 冷启动 | 0 | 8704 | 8704 | 401.5 ms |
 | random | 1024，各条不同 | r2 重复提交 | 8192 | 512 | 8704 | 34.9 ms |
 
+![TTFT by arm](figs/ttft-by-arm.png)
+
 读这张表的三条：
 
 1. **共享 1024 token 前缀、重复提交**：TTFT 84.2 → 32.3 ms（2.6×），真实 prefill 计算量 8704 → 1536（5.67×）。
@@ -32,6 +34,8 @@
 - shared 组与 random 组的**引擎报告值都是 8704**；
 - 只看报告值会得出「前缀缓存没生效」的相反结论；
 - 按真实计算量（`computed_prefill_tokens`）两者相差 **5.67 倍**，TTFT 相差 4.8 倍（84.2 vs 401.5 ms 冷启动）。
+
+![metric trap](figs/metric-trap.png)
 
 所以「缓存有没有用」这个问题，在 nano-vllm 里不能用 `prefill_tokens` 回答，只能用
 `sum(prompt - num_cached_tokens)` + 命中计数回答。
@@ -74,6 +78,8 @@ experiments/29_prefix_cache_ablation.py   三组对照（shared / short / random
 scripts/repro.sh                          复现入口
 results/04_s4_prefix_cache.jsonl          原始数据（每 arm 2 轮，含 events 计数）
 results/env.json                          环境快照
+figs/ttft-by-arm.png                      三组 arm 的 TTFT 对比
+figs/metric-trap.png                      引擎口径 vs 真实计算量
 bugs/                                     两处缺陷：现象 → 定位 → 结论
 notes/request-lifecycle.md                请求生命周期与 KV block 三态
 ```
